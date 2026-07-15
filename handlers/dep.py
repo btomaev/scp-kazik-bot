@@ -94,7 +94,12 @@ async def loan(msg: types.Message, user_storage: UserStorage):
        last_loan.day == now.day:
         await msg.answer('Я и так занимал тебе сегодня, иди отсюда, лудик несчастный.')
 
-    await user_storage.increment('balance', config.get('loan_value', default=0))
-    await user_storage.increment('debt', config.get('loan_value', default=0))
+    loan_value = config.get('loan_value', default=0)
+
+    await user_storage.increment('balance', loan_value)
+    await user_storage.increment('debt', loan_value)
     await user_storage.increment('loans_count')
+    await user_storage.set('last_loan', now.strftime('%d.%m.%Y'))
+
+    await msg.answer(f'Сцедил тебе {loan_value} манесов')
 
