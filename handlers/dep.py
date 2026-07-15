@@ -24,12 +24,12 @@ async def place_bet(
     msg: types.Message,
     user_storage: UserStorage,
     subject: str,
-) -> bool:
+) -> int | None:
     balance = await user_storage.get('balance', default=0) or 0
 
     if not subject.isdecimal():
         await msg.reply(config.get('localization.dep.invalid_subject'))
-        return False
+        return
 
     value = int(subject)
     if value > balance:
@@ -38,18 +38,15 @@ async def place_bet(
                 balance=balance,
             )
         )
-        return False
+        return
     if value <= 0:
         await msg.reply(config.get('localization.dep.non_positive_value'))
-        return False
+        return
 
     await user_storage.increment('balance', -value)
     await user_storage.increment('deposit', value)
     await user_storage.increment('total_deps_count')
-    await msg.reply(
-        config.get('localization.dep.accepted').format(value=value)
-    )
-    return True
+    return value
 
 
 async def slot(msg: types.Message, user_storage: UserStorage):
@@ -102,7 +99,12 @@ async def dep(msg: types.Message, user_storage: UserStorage):
         return
 
     subject = msg.text.removeprefix('/dep').strip()
-    await place_bet(msg, user_storage, subject)
+    value = await place_bet(msg, user_storage, subject)
+    if value:
+        await msg.reply(
+            config.get('localization.dep.accepted').format(value=value)
+        )
+
 
 
 async def loan(msg: types.Message, user_storage: UserStorage):
