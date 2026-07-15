@@ -29,6 +29,8 @@ async def stats(msg: types.Message, user_storage: UserStorage):
         config.get('localization.state.stats').format(
             total_deps=total_deps,
             total_lost=total_lost,
+            total_earned=total_earned,
+            total_wins=total_wins,
             total_slot_play=total_slot_play,
         )
     )

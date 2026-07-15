@@ -46,4 +46,6 @@ localization:
     stats: |-
       Всего депов: {total_deps}
       Пролудоманенно: {total_lost}
+      Всего выиграно: {total_earned}
+      Всего побед: {total_wins}
       Сыграно в слотмашину: {total_slot_play}

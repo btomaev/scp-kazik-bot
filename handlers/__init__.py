@@ -14,7 +14,9 @@ def prepare_router() -> Router:
     router.message.register(dep.slot, Command('slot'))
     router.message.register(dep.dep, Command('dep'))
     router.message.register(dep.loan, Command('loan'))
+    
     router.message.register(state.balance, Command('balance'))
+    router.message.register(state.stats, Command('stats'))
 
     router.message.register(admin.admit_chat, Command('admit_chat'))
     router.message.register(admin.deny_chat, Command('deny_chat'))
