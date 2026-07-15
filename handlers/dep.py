@@ -43,8 +43,8 @@ async def slot(msg: types.Message, user_storage: UserStorage):
     elif result.value == 64:
         await user_storage.increment('balance', deposit * 10)
         await user_storage.set('deposit', 0)
-        await msg.reply(f'Джекпот! Ваша ставка утраивается!\n'
-                        f'Депозит: {deposit * 3}')
+        await msg.reply(f'Джекпот! Ваша ставка x10!\n'
+                        f'Депозит: {deposit * 10}')
     else:
         await user_storage.increment('total_lost', deposit)
         await user_storage.set('deposit', 0)
