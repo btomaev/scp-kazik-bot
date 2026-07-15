@@ -34,21 +34,15 @@ async def slot(msg: types.Message, user_storage: UserStorage):
     await asyncio.sleep(2)
 
     if result.value in [1, 22, 43]:
-        await user_storage.mutate(
-            "deposit",
-            lambda deposit: deposit * 2,
-            default=0,
-        )
+        await user_storage.increment('balance', deposit * 2)
+        await user_storage.set('deposit', 0)
         await user_storage.increment('total_wins')
         await user_storage.increment('total_earned', deposit * 2)
         await msg.reply(f'Поздравляю, вы выиграли и ваша ставка удваивается!\n'
                         f'Депозит: {deposit * 2}')
     elif result.value == 64:
-        await user_storage.mutate(
-            "deposit",
-            lambda deposit: deposit * 3,
-            default=0,
-        )
+        await user_storage.increment('balance', deposit * 10)
+        await user_storage.set('deposit', 0)
         await msg.reply(f'Джекпот! Ваша ставка утраивается!\n'
                         f'Депозит: {deposit * 3}')
     else:
