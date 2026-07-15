@@ -13,5 +13,9 @@ async def start(msg: types.Message, user_storage: UserStorage):
             'balance': start_balance,
             'is_seen': True
         })
-        await msg.reply(f'Добро пожаловать в аномальный казик.\nТебе начислен приветственный бонус: {start_balance}!')
+        await msg.reply(
+            config.get('localization.start.welcome').format(
+                start_balance=start_balance,
+            )
+        )
     

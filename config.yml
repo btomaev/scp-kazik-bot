@@ -2,3 +2,47 @@ admin: 1139602557
 
 start_balance: 1000
 loan_value: 500
+
+localization:
+  admin:
+    chat_admitted: Чат одобрен для использования
+    chat_denied: Чат попущен
+
+  dep:
+    slot:
+      deposit_required: |-
+        Сначала сделайте ставку.
+        /dep <ставка>
+      win: |-
+        Поздравляю, вы выиграли, ставка x5!
+        Депозит: {deposit}
+      jackpot: |-
+        Джекпот! Ваша ставка x10!
+        Депозит: {deposit}
+      loss: |-
+        Не повезло, ваш депозит сгорел.
+        Попробуйте еще раз, фортуна точно будет на вашей стороне!
+    empty_subject: Возвращайся когда у тебя будет что мне предложить
+    insufficient_balance: Недостаточно средств, у вас на балансе {balance}
+    non_positive_value: 🖕 (с уважением)
+    accepted: 'Ваш депозит: {value}'
+    invalid_subject: Я такое не принимаю
+    loan:
+      funds_available: У тебя и так есть деньги, иди отсюда, попрошайка.
+      already_received: Я и так занимал тебе сегодня, иди отсюда, лудик несчастный.
+      received: Сцедил тебе {loan_value} манесов
+
+  start:
+    welcome: |-
+      Добро пожаловать в аномальный казик.
+      Тебе начислен приветственный бонус: {start_balance}!
+
+  state:
+    balance: |-
+      Ваш баланс: {balance}
+      Текущий депозит: {deposit}
+      Ваш долг: {debt}
+    stats: |-
+      Всего депов: {total_deps}
+      Пролудоманенно: {total_lost}
+      Сыграно в слотмашину: {total_slot_play}

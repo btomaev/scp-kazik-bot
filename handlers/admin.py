@@ -14,7 +14,7 @@ async def admit_chat(msg: types.Message, bot_storage: BotStorage):
         default=[],
     )
 
-    await msg.reply('Чат одобрен для использования')
+    await msg.reply(config.get('localization.admin.chat_admitted'))
 
 
 async def deny_chat(msg: types.Message, bot_storage: BotStorage):
@@ -27,4 +27,4 @@ async def deny_chat(msg: types.Message, bot_storage: BotStorage):
         default=[],
     )
 
-    await msg.reply('Чат попущен')
+    await msg.reply(config.get('localization.admin.chat_denied'))
