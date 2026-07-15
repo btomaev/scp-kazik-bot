@@ -123,6 +123,7 @@ async def loan(msg: types.Message, user_storage: UserStorage):
        last_loan.month == now.month and \
        last_loan.day == now.day:
         await msg.answer(config.get('localization.dep.loan.already_received'))
+        return
 
     loan_value = config.get('loan_value', default=0)
 
