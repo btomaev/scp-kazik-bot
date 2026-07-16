@@ -20,10 +20,15 @@ async def balance(msg: types.Message, user_storage: UserStorage):
 
 async def stats(msg: types.Message, user_storage: UserStorage):
     total_deps = await user_storage.get('total_deps_count', default=0)
-    total_lost = await user_storage.get('total_lost', default=0)
-    total_earned = await user_storage.get('total_earned', default=0)
-    total_wins = await user_storage.get('total_wins', default=0)
+
+    total_slot_lost = await user_storage.get('total_slot_lost', default=0)
+    total_slot_earned = await user_storage.get('total_earned', default=0)
+    total_slot_wins = await user_storage.get('total_wins', default=0)
     total_slot_play = await user_storage.get('total_slot_play_count', default=0)
+
+    total_lost = total_slot_lost
+    total_earned = total_slot_earned
+    total_wins = total_slot_wins
 
     await msg.reply(
         config.get('localization.state.stats').format(

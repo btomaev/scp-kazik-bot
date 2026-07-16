@@ -1,7 +1,8 @@
 from aiogram import types
 
 import config
-from storage import BotStorage
+from storage import BotStorage, PersistentStorage
+from util.msgtools import parse_int, remove_command_prefix
 
 
 async def admit_chat(msg: types.Message, bot_storage: BotStorage):
@@ -28,3 +29,47 @@ async def deny_chat(msg: types.Message, bot_storage: BotStorage):
     )
 
     await msg.reply(config.get('localization.admin.chat_denied'))
+
+
+async def set_balance(msg: types.Message, storage: PersistentStorage):
+    text = remove_command_prefix(msg.text)
+    value, _ = parse_int(text)
+    value = max(value, 0)
+
+    replied = msg.reply_to_message
+    if replied is None or replied.from_user is None:
+        await msg.reply(config.get('localization.admin.insufficient_reply'))
+        return
+
+    target_storage = storage.for_user(replied.from_user.id)
+    await target_storage.set('balance', value)
+    await msg.reply(config.get('localization.admin.set_balance_successful'))
+
+
+async def change_balance(msg: types.Message, storage: PersistentStorage):
+    text = remove_command_prefix(msg.text)
+    value, _ = parse_int(text)
+
+    replied = msg.reply_to_message
+    if replied is None or replied.from_user is None:
+        await msg.reply(config.get('localization.admin.insufficient_reply'))
+        return
+
+    target_storage = storage.for_user(replied.from_user.id)
+    await target_storage.increment('balance', value)
+    await msg.reply(config.get('localization.admin.set_balance_successful'))
+
+
+async def set_debt(msg: types.Message, storage: PersistentStorage):
+    text = remove_command_prefix(msg.text)
+    value, _ = parse_int(text)
+    value = max(value, 0)
+
+    replied = msg.reply_to_message
+    if replied is None or replied.from_user is None:
+        await msg.reply(config.get('localization.admin.insufficient_reply'))
+        return
+
+    target_storage = storage.for_user(replied.from_user.id)
+    await target_storage.set('balance', value)
+    await msg.reply(config.get('localization.admin.set_debt_successful'))

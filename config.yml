@@ -7,6 +7,9 @@ localization:
   admin:
     chat_admitted: Чат одобрен для использования
     chat_denied: Чат попущен
+    insufficient_reply: Ответьте командой на сообщение пользователя
+    set_balance_successful: Баланс пользователя изменен
+    set_debt_successful: Долг пользователя изменен
 
   dep:
     slot:
