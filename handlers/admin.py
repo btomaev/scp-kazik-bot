@@ -6,7 +6,7 @@ from util.msgtools import parse_int, remove_command_prefix
 
 
 async def admit_chat(msg: types.Message, bot_storage: BotStorage):
-    if msg.from_user != config.get('admin'):
+    if msg.from_user and msg.from_user.id != int(config.get('admin')):
         return
 
     await bot_storage.mutate(
@@ -19,7 +19,7 @@ async def admit_chat(msg: types.Message, bot_storage: BotStorage):
 
 
 async def deny_chat(msg: types.Message, bot_storage: BotStorage):
-    if msg.from_user != config.get('admin'):
+    if msg.from_user and msg.from_user.id != int(config.get('admin')):
         return
 
     await bot_storage.mutate(
@@ -32,6 +32,9 @@ async def deny_chat(msg: types.Message, bot_storage: BotStorage):
 
 
 async def set_balance(msg: types.Message, storage: PersistentStorage):
+    if msg.from_user and msg.from_user.id != int(config.get('admin')):
+        return
+    
     text = remove_command_prefix(msg.text)
     value, _ = parse_int(text)
     value = max(value, 0)
@@ -47,6 +50,9 @@ async def set_balance(msg: types.Message, storage: PersistentStorage):
 
 
 async def change_balance(msg: types.Message, storage: PersistentStorage):
+    if msg.from_user and msg.from_user.id != int(config.get('admin')):
+        return
+    
     text = remove_command_prefix(msg.text)
     value, _ = parse_int(text)
 
@@ -61,6 +67,9 @@ async def change_balance(msg: types.Message, storage: PersistentStorage):
 
 
 async def set_debt(msg: types.Message, storage: PersistentStorage):
+    if msg.from_user and msg.from_user.id != int(config.get('admin')):
+        return
+    
     text = remove_command_prefix(msg.text)
     value, _ = parse_int(text)
     value = max(value, 0)
