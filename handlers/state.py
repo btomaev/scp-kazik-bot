@@ -19,8 +19,6 @@ async def balance(msg: types.Message, user_storage: UserStorage):
 
 
 async def stats(msg: types.Message, user_storage: UserStorage):
-    total_deps = await user_storage.get('total_deps_count', default=0)
-
     total_slot_lost = await user_storage.get('total_slot_lost', default=0)
     total_slot_earned = await user_storage.get('total_earned', default=0)
     total_slot_wins = await user_storage.get('total_wins', default=0)
