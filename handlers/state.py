@@ -32,10 +32,10 @@ async def stats(msg: types.Message, user_storage: UserStorage):
 
     await msg.reply(
         config.get('localization.state.stats').format(
-            total_deps=total_deps,
+            total_wins=total_wins,
             total_lost=total_lost,
             total_earned=total_earned,
-            total_wins=total_wins,
+            total_slot_wins=total_slot_wins,
             total_slot_play=total_slot_play,
         )
     )

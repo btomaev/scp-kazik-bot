@@ -8,7 +8,11 @@ T = TypeVar('T')
 def remove_command_prefix(text: str | None) -> str:
     if not text:
         return ''
+    
     parts = text.split(maxsplit=1)
+    if len(parts) == 1:
+        return ''
+    
     return (parts or [''])[-1]
 
 
