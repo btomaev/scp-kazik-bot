@@ -8,19 +8,6 @@ from storage import UserStorage
 from util.msgtools import parse_int, remove_command_prefix
 
 
-# async def slot(msg: types.Message):
-#     stream = build_slot_tgs(randint(0, 5), randint(0, 5), randint(0, 5))
-#     sticker = types.BufferedInputFile(
-#         stream.getvalue(),
-#         filename=stream.name,
-#     )
-
-#     await msg.reply_sticker(
-#         sticker=sticker,
-#         emoji="🎰",
-#     )
-
-
 async def slot(msg: types.Message, user_storage: UserStorage):
     subject = remove_command_prefix(msg.text)
     if subject:
