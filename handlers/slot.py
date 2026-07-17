@@ -22,13 +22,14 @@ from util.msgtools import parse_int, remove_command_prefix
 
 async def slot(msg: types.Message, user_storage: UserStorage):
     subject = remove_command_prefix(msg.text)
-    deposit = 0
-
     if subject:
         value, _ = parse_int(subject)
         balance = await user_storage.get('balance', default=0) or 0
         if value <= balance:
             deposit = value
+        else:
+            await msg.answer(config.get('localization.dep.slot.insufficient_balance'))
+            return
     else:
         deposit = await user_storage.get('deposit', default=0) or 0
 

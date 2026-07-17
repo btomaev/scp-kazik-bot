@@ -6,35 +6,6 @@ from storage import UserStorage
 from util.msgtools import remove_command_prefix
 
 
-# async def place_bet(
-#     msg: types.Message,
-#     user_storage: UserStorage,
-#     subject: str,
-# ) -> int | None:
-#     balance = await user_storage.get('balance', default=0) or 0
-
-#     if not subject.isdecimal():
-#         await msg.reply(config.get('localization.dep.invalid_subject'))
-#         return
-
-#     value = int(subject)
-#     if value > balance:
-#         await msg.reply(
-#             config.get('localization.dep.insufficient_balance').format(
-#                 balance=balance,
-#             )
-#         )
-#         return
-#     if value <= 0:
-#         await msg.reply(config.get('localization.dep.non_positive_value'))
-#         return
-
-#     await user_storage.increment('balance', -value)
-#     await user_storage.increment('deposit', value)
-#     await user_storage.increment('total_deps_count')
-#     return value
-
-
 async def dep(msg: types.Message, user_storage: UserStorage):
     if not msg.text:
         await msg.reply(config.get('localization.dep.empty_subject'))
