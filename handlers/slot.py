@@ -28,7 +28,9 @@ async def slot(msg: types.Message, user_storage: UserStorage):
         if value <= balance:
             deposit = value
         else:
-            await msg.answer(config.get('localization.dep.insufficient_balance'))
+            await msg.answer(config.get('localization.dep.insufficient_balance').format(
+                balance=balance
+            ))
             return
     else:
         deposit = await user_storage.get('deposit', default=0) or 0
