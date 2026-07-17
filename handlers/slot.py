@@ -22,10 +22,6 @@ from util.msgtools import remove_command_prefix
 
 
 async def slot(msg: types.Message, user_storage: UserStorage):
-    if not msg.text:
-        await msg.reply(config.get('localization.dep.empty_subject'))
-        return
-
     subject = remove_command_prefix(msg.text)
     if subject and not await place_bet(msg, user_storage, subject):
         return
@@ -41,10 +37,10 @@ async def slot(msg: types.Message, user_storage: UserStorage):
     await asyncio.sleep(2)
 
     if result.value in [1, 22, 43]:
-        await user_storage.increment('balance', deposit * 2)
+        await user_storage.increment('balance', deposit * 5)
         await user_storage.set('deposit', 0)
         await user_storage.increment('total_slot_wins')
-        await user_storage.increment('total_slot_earned', deposit * 2)
+        await user_storage.increment('total_slot_earned', deposit * 5)
         await msg.reply(
             config.get('localization.dep.slot.win').format(
                 deposit=deposit * 5,
@@ -53,6 +49,8 @@ async def slot(msg: types.Message, user_storage: UserStorage):
     elif result.value == 64:
         await user_storage.increment('balance', deposit * 10)
         await user_storage.set('deposit', 0)
+        await user_storage.increment('total_slot_wins')
+        await user_storage.increment('total_slot_earned', deposit * 5)
         await msg.reply(
             config.get('localization.dep.slot.jackpot').format(
                 deposit=deposit * 10,
