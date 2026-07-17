@@ -50,7 +50,7 @@ async def slot(msg: types.Message, user_storage: UserStorage):
         await user_storage.increment('balance', deposit * 10)
         await user_storage.set('deposit', 0)
         await user_storage.increment('total_slot_wins')
-        await user_storage.increment('total_slot_earned', deposit * 5)
+        await user_storage.increment('total_slot_earned', deposit * 10)
         await msg.reply(
             config.get('localization.dep.slot.jackpot').format(
                 deposit=deposit * 10,
