@@ -1,6 +1,7 @@
 import asyncio
 
 from aiogram import types
+from aiogram.exceptions import TelegramRetryAfter
 
 import config
 from storage import UserStorage
@@ -42,7 +43,11 @@ async def slot(msg: types.Message, user_storage: UserStorage):
     await user_storage.increment('total_slot_play_count')
     await user_storage.increment('balance', -deposit)
 
-    result = (await msg.reply_dice(emoji='🎰')).dice
+    try:
+        result = (await msg.reply_dice(emoji='🎰')).dice
+    except TelegramRetryAfter:
+        await msg.reply(config.get('localization.system.too_many_stickers'))
+        return
 
     await asyncio.sleep(2)
 
