@@ -1,19 +1,19 @@
-"""Runtime generator for deterministic Telegram animated slot stickers (.TGS).
+'''Runtime generator for deterministic Telegram animated slot stickers (.TGS).
 
 No files are created on disk. ``build_slot_tgs`` returns a fresh ``BytesIO``
 positioned at byte 0 and ready to upload through a Telegram bot library.
-"""
+'''
 
 from __future__ import annotations
 
 __all__ = [
-    "SlotSymbol",
-    "SYMBOLS",
-    "build_slot_tgs",
-    "cache_info",
-    "clear_slot_cache",
-    "normalize_symbol",
-    "slot_filename",
+    'SlotSymbol',
+    'SYMBOLS',
+    'build_slot_tgs',
+    'cache_info',
+    'clear_slot_cache',
+    'normalize_symbol',
+    'slot_filename',
 ]
 
 import gzip
@@ -28,12 +28,12 @@ OP: Final = 180
 TGS_MAX_BYTES: Final = 64 * 1024
 
 SYMBOLS: Final = (
-    ("cherry", "🍒"),
-    ("lemon", "🍋"),
-    ("orange", "🍊"),
-    ("grapes", "🍇"),
-    ("bell", "🔔"),
-    ("seven", "7️⃣"),
+    ('cherry', '🍒'),
+    ('lemon', '🍋'),
+    ('orange', '🍊'),
+    ('grapes', '🍇'),
+    ('bell', '🔔'),
+    ('seven', '7️⃣'),
 )
 
 
@@ -52,10 +52,10 @@ _NAME_TO_INDEX: Final = {name: index for index, (name, _) in enumerate(SYMBOLS)}
 _EMOJI_TO_INDEX: Final = {emoji: index for index, (_, emoji) in enumerate(SYMBOLS)}
 # Common spelling variants accepted by the public API.
 _ALIASES: Final = {
-    "cherries": 0,
-    "grape": 3,
-    "7": 5,
-    "7️⃣": 5,
+    'cherries': 0,
+    'grape': 3,
+    '7': 5,
+    '7️⃣': 5,
 }
 
 def prop(v):
@@ -261,18 +261,18 @@ def make_animation(result):
     }
 
 def normalize_symbol(value: SymbolInput) -> int:
-    """Convert an index, enum, slug or supported emoji to an integer 0..5."""
+    '''Convert an index, enum, slug or supported emoji to an integer 0..5.'''
     if isinstance(value, bool):
-        raise TypeError("bool is not a valid slot symbol")
+        raise TypeError('bool is not a valid slot symbol')
 
     if isinstance(value, (int, SlotSymbol)):
         index = int(value)
         if 0 <= index < len(SYMBOLS):
             return index
-        raise ValueError(f"symbol index must be in 0..{len(SYMBOLS) - 1}, got {index}")
+        raise ValueError(f'symbol index must be in 0..{len(SYMBOLS) - 1}, got {index}')
 
     if not isinstance(value, str):
-        raise TypeError(f"symbol must be int, str or SlotSymbol, got {type(value).__name__}")
+        raise TypeError(f'symbol must be int, str or SlotSymbol, got {type(value).__name__}')
 
     key = value.strip().lower()
     if key in _NAME_TO_INDEX:
@@ -282,31 +282,31 @@ def normalize_symbol(value: SymbolInput) -> int:
     if key in _ALIASES:
         return _ALIASES[key]
 
-    allowed = ", ".join(name for name, _ in SYMBOLS)
-    raise ValueError(f"unknown symbol {value!r}; allowed names: {allowed}, or indices 0..5")
+    allowed = ', '.join(name for name, _ in SYMBOLS)
+    raise ValueError(f'unknown symbol {value!r}; allowed names: {allowed}, or indices 0..5')
 
 
 def slot_filename(left: SymbolInput, center: SymbolInput, right: SymbolInput) -> str:
-    """Return a stable upload filename for a combination."""
+    '''Return a stable upload filename for a combination.'''
     result = tuple(normalize_symbol(value) for value in (left, center, right))
-    return f"slot_{result[0]}_{result[1]}_{result[2]}.tgs"
+    return f'slot_{result[0]}_{result[1]}_{result[2]}.tgs'
 
 
 @lru_cache(maxsize=32)
 def _build_tgs_bytes(result: tuple[int, int, int]) -> bytes:
-    """Build and optionally retain one compressed sticker in process memory."""
+    '''Build and optionally retain one compressed sticker in process memory.'''
     animation = make_animation(result)
     raw_json = json.dumps(
         animation,
-        separators=(",", ":"),
+        separators=(',', ':'),
         ensure_ascii=False,
-    ).encode("utf-8")
+    ).encode('utf-8')
 
     output = BytesIO()
     # Empty filename and mtime=0 make the gzip payload reproducible.
     with gzip.GzipFile(
-        filename="",
-        mode="wb",
+        filename='',
+        mode='wb',
         fileobj=output,
         compresslevel=9,
         mtime=0,
@@ -316,7 +316,7 @@ def _build_tgs_bytes(result: tuple[int, int, int]) -> bytes:
     payload = output.getvalue()
     if len(payload) > TGS_MAX_BYTES:
         raise RuntimeError(
-            f"generated TGS is {len(payload)} bytes, exceeding {TGS_MAX_BYTES} bytes"
+            f'generated TGS is {len(payload)} bytes, exceeding {TGS_MAX_BYTES} bytes'
         )
     return payload
 
@@ -328,17 +328,17 @@ def build_slot_tgs(
     *,
     use_cache: bool = False,
 ) -> BytesIO:
-    """Build one animated slot sticker entirely in memory.
+    '''Build one animated slot sticker entirely in memory.
 
     Args:
         left, center, right: Symbol indices 0..5, ``SlotSymbol`` values,
-            slugs such as ``"cherry"``/``"seven"``, or supported emoji.
+            slugs such as ``'cherry'``/``'seven'``, or supported emoji.
         use_cache: Retain up to 32 recently generated combinations in RAM. The returned
             ``BytesIO`` is always a new independent object.
 
     Returns:
         A fresh ``BytesIO`` positioned at 0.
-    """
+    '''
     result = tuple(normalize_symbol(value) for value in (left, center, right))
 
     if use_cache:
@@ -355,10 +355,10 @@ def build_slot_tgs(
 
 
 def clear_slot_cache() -> None:
-    """Release all generated combinations retained by the in-memory cache."""
+    '''Release all generated combinations retained by the in-memory cache.'''
     _build_tgs_bytes.cache_clear()
 
 
 def cache_info():
-    """Expose cache statistics, useful for monitoring long-running bots."""
+    '''Expose cache statistics, useful for monitoring long-running bots.'''
     return _build_tgs_bytes.cache_info()

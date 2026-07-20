@@ -36,6 +36,13 @@ localization:
       already_received: Я и так занимал тебе сегодня, иди отсюда, лудик несчастный.
       received: Сцедил тебе {loan_value} манесов
 
+  blackjack:
+    start:
+      make_room: Создать комнату для игры в блэкджек?
+      make_room_btn: Создать
+      close_room_btn: Закрыть комнату
+      join_room_btn: Присоединиться ({joined_players}/{max_players})
+
   start:
     welcome: |-
       Добро пожаловать в аномальный казик.

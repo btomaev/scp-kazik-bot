@@ -19,7 +19,7 @@ class Base(DeclarativeBase):
 
 
 class TelegramUser(Base):
-    __tablename__ = "telegram_users"
+    __tablename__ = 'telegram_users'
 
     id: Mapped[int] = mapped_column(
         BigInteger,
@@ -44,14 +44,14 @@ class TelegramUser(Base):
 
 
 class UserValue(Base):
-    __tablename__ = "user_values"
+    __tablename__ = 'user_values'
     __table_args__ = (
-        Index("ix_user_values_user_namespace", "user_id", "namespace"),
+        Index('ix_user_values_user_namespace', 'user_id', 'namespace'),
     )
 
     user_id: Mapped[int] = mapped_column(
         BigInteger,
-        ForeignKey("telegram_users.id", ondelete="CASCADE"),
+        ForeignKey('telegram_users.id', ondelete='CASCADE'),
         primary_key=True,
         autoincrement=False,
     )
@@ -66,7 +66,7 @@ class UserValue(Base):
 
 
 class BotValue(Base):
-    __tablename__ = "bot_values"
+    __tablename__ = 'bot_values'
 
     namespace: Mapped[str] = mapped_column(String(64), primary_key=True)
     key: Mapped[str] = mapped_column(String(255), primary_key=True)

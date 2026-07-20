@@ -8,7 +8,7 @@ from .core import PersistentStorage
 
 
 class StorageMiddleware(BaseMiddleware):
-    """Inject bot-wide and user-bound repositories into aiogram handlers."""
+    '''Inject bot-wide and user-bound repositories into aiogram handlers.'''
 
     def __init__(self, storage: PersistentStorage) -> None:
         self.storage = storage
@@ -19,10 +19,10 @@ class StorageMiddleware(BaseMiddleware):
         event: TelegramObject,
         data: dict[str, Any],
     ) -> Any:
-        data["storage"] = self.storage
-        data["bot_storage"] = self.storage.bot
+        data['storage'] = self.storage
+        data['bot_storage'] = self.storage.bot
 
-        user = data.get("event_from_user")
+        user = data.get('event_from_user')
         if isinstance(user, User):
             await self.storage.sync_user(
                 user.id,
@@ -32,6 +32,6 @@ class StorageMiddleware(BaseMiddleware):
                 language_code=user.language_code,
                 is_bot=user.is_bot,
             )
-            data["user_storage"] = self.storage.for_user(user.id)
+            data['user_storage'] = self.storage.for_user(user.id)
 
         return await handler(event, data)

@@ -22,7 +22,7 @@ from sqlalchemy.ext.asyncio import (
 from .models import Base, BotValue, TelegramUser, UserValue
 
 
-T = TypeVar("T")
+T = TypeVar('T')
 
 
 def _serialize_json(value: Any) -> str:
@@ -30,7 +30,7 @@ def _serialize_json(value: Any) -> str:
         value,
         ensure_ascii=False,
         allow_nan=False,
-        separators=(",", ":"),
+        separators=(',', ':'),
     )
 
 
@@ -38,21 +38,21 @@ def _validate_json(value: Any) -> None:
     try:
         _serialize_json(value)
     except (TypeError, ValueError, OverflowError) as error:
-        raise ValueError("value must be valid JSON data") from error
+        raise ValueError('value must be valid JSON data') from error
 
 
 def _validate_name(value: str, *, name: str, max_length: int) -> str:
     if not isinstance(value, str):
-        raise TypeError(f"{name} must be a string")
+        raise TypeError(f'{name} must be a string')
     if not value:
-        raise ValueError(f"{name} cannot be empty")
+        raise ValueError(f'{name} cannot be empty')
     if len(value) > max_length:
-        raise ValueError(f"{name} cannot be longer than {max_length} characters")
+        raise ValueError(f'{name} cannot be longer than {max_length} characters')
     return value
 
 
 class PersistentStorage:
-    """Async SQLAlchemy storage backed by a local SQLite database."""
+    '''Async SQLAlchemy storage backed by a local SQLite database.'''
 
     def __init__(
         self,
@@ -61,18 +61,18 @@ class PersistentStorage:
         busy_timeout_ms: int = 30_000,
     ) -> None:
         url = make_url(database_url)
-        if url.drivername != "sqlite+aiosqlite":
-            raise ValueError("database_url must use the sqlite+aiosqlite driver")
+        if url.drivername != 'sqlite+aiosqlite':
+            raise ValueError('database_url must use the sqlite+aiosqlite driver')
         if busy_timeout_ms <= 0:
-            raise ValueError("busy_timeout_ms must be positive")
+            raise ValueError('busy_timeout_ms must be positive')
 
-        if url.database and url.database != ":memory:":
+        if url.database and url.database != ':memory:':
             Path(url.database).expanduser().parent.mkdir(parents=True, exist_ok=True)
 
         self._busy_timeout_ms = busy_timeout_ms
         self._engine: AsyncEngine = create_async_engine(
             url,
-            connect_args={"timeout": busy_timeout_ms / 1000},
+            connect_args={'timeout': busy_timeout_ms / 1000},
             json_serializer=_serialize_json,
         )
         self._write_lock = asyncio.Lock()
@@ -90,24 +90,24 @@ class PersistentStorage:
     def _configure_sqlite_connections(self) -> None:
         busy_timeout_ms = self._busy_timeout_ms
 
-        @event.listens_for(self._engine.sync_engine, "connect")
+        @event.listens_for(self._engine.sync_engine, 'connect')
         def set_sqlite_pragmas(dbapi_connection: Any, _: Any) -> None:
             cursor = dbapi_connection.cursor()
             try:
-                cursor.execute("PRAGMA foreign_keys=ON")
-                cursor.execute(f"PRAGMA busy_timeout={busy_timeout_ms}")
-                cursor.execute("PRAGMA journal_mode=WAL")
-                cursor.execute("PRAGMA synchronous=NORMAL")
+                cursor.execute('PRAGMA foreign_keys=ON')
+                cursor.execute(f'PRAGMA busy_timeout={busy_timeout_ms}')
+                cursor.execute('PRAGMA journal_mode=WAL')
+                cursor.execute('PRAGMA synchronous=NORMAL')
             finally:
                 cursor.close()
 
     async def initialize(self) -> None:
-        """Create missing tables. Safe to call more than once."""
+        '''Create missing tables. Safe to call more than once.'''
         async with self._initialization_lock:
             if self._initialized:
                 return
             if self._closed:
-                raise RuntimeError("storage is already closed")
+                raise RuntimeError('storage is already closed')
 
             async with self._engine.begin() as connection:
                 await connection.run_sync(Base.metadata.create_all)
@@ -128,13 +128,13 @@ class PersistentStorage:
     async def __aexit__(self, *_: object) -> None:
         await self.close()
 
-    def for_user(self, user_id: int, namespace: str = "default") -> UserStorage:
+    def for_user(self, user_id: int, namespace: str = 'default') -> UserStorage:
         if not isinstance(user_id, int) or isinstance(user_id, bool):
-            raise TypeError("user_id must be an integer")
+            raise TypeError('user_id must be an integer')
         return UserStorage(self, user_id, namespace)
 
-    def for_bot(self, namespace: str = "default") -> BotStorage:
-        if namespace == "default":
+    def for_bot(self, namespace: str = 'default') -> BotStorage:
+        if namespace == 'default':
             return self.bot
         return BotStorage(self, namespace)
 
@@ -148,9 +148,9 @@ class PersistentStorage:
         language_code: str | None = None,
         is_bot: bool = False,
     ) -> None:
-        """Create or refresh a Telegram user record."""
+        '''Create or refresh a Telegram user record.'''
         if not isinstance(user_id, int) or isinstance(user_id, bool):
-            raise TypeError("user_id must be an integer")
+            raise TypeError('user_id must be an integer')
 
         statement = sqlite_insert(TelegramUser).values(
             id=user_id,
@@ -163,12 +163,12 @@ class PersistentStorage:
         statement = statement.on_conflict_do_update(
             index_elements=[TelegramUser.id],
             set_={
-                "username": statement.excluded.username,
-                "first_name": statement.excluded.first_name,
-                "last_name": statement.excluded.last_name,
-                "language_code": statement.excluded.language_code,
-                "is_bot": statement.excluded.is_bot,
-                "last_seen_at": func.current_timestamp(),
+                'username': statement.excluded.username,
+                'first_name': statement.excluded.first_name,
+                'last_name': statement.excluded.last_name,
+                'language_code': statement.excluded.language_code,
+                'is_bot': statement.excluded.is_bot,
+                'last_seen_at': func.current_timestamp(),
             },
         )
         async with self._write_connection() as connection:
@@ -176,7 +176,7 @@ class PersistentStorage:
 
     def _ensure_ready(self) -> None:
         if not self._initialized or self._closed:
-            raise RuntimeError("storage is not initialized")
+            raise RuntimeError('storage is not initialized')
 
     @asynccontextmanager
     async def _read_connection(self):
@@ -186,11 +186,11 @@ class PersistentStorage:
 
     @asynccontextmanager
     async def _write_connection(self):
-        """Serialize local writes and reserve SQLite's writer lock up front."""
+        '''Serialize local writes and reserve SQLite's writer lock up front.'''
         self._ensure_ready()
         async with self._write_lock:
             async with self._engine.connect() as connection:
-                await connection.exec_driver_sql("BEGIN IMMEDIATE")
+                await connection.exec_driver_sql('BEGIN IMMEDIATE')
                 try:
                     yield connection
                 except BaseException:
@@ -207,14 +207,14 @@ class _KeyValueStorage:
         self._storage = storage
         self.namespace = _validate_name(
             namespace,
-            name="namespace",
+            name='namespace',
             max_length=64,
         )
 
     def _identity(self, key: str) -> dict[str, Any]:
         return {
-            "namespace": self.namespace,
-            "key": _validate_name(key, name="key", max_length=255),
+            'namespace': self.namespace,
+            'key': _validate_name(key, name='key', max_length=255),
         }
 
     async def _prepare_value_write(self, connection: AsyncConnection) -> None:
@@ -238,7 +238,7 @@ class _KeyValueStorage:
     async def set(self, key: str, value: Any) -> None:
         identity = self._identity(key)
         _validate_json(value)
-        statement = self._upsert_statement({**identity, "value": value})
+        statement = self._upsert_statement({**identity, 'value': value})
         async with self._storage._write_connection() as connection:
             await self._prepare_value_write(connection)
             await connection.execute(statement)
@@ -250,14 +250,14 @@ class _KeyValueStorage:
         rows: list[dict[str, Any]] = []
         for key, value in values.items():
             _validate_json(value)
-            rows.append({**self._identity(key), "value": value})
+            rows.append({**self._identity(key), 'value': value})
 
         statement = sqlite_insert(self._model).values(rows)
         statement = statement.on_conflict_do_update(
             index_elements=self._conflict_columns,
             set_={
-                "value": statement.excluded.value,
-                "updated_at": func.current_timestamp(),
+                'value': statement.excluded.value,
+                'updated_at': func.current_timestamp(),
             },
         )
         async with self._storage._write_connection() as connection:
@@ -287,13 +287,13 @@ class _KeyValueStorage:
             return dict(result.all())
 
     async def increment(self, key: str, amount: int | float = 1) -> int | float:
-        """Atomically increment a numeric value and return the new value."""
+        '''Atomically increment a numeric value and return the new value.'''
         if (
             not isinstance(amount, (int, float))
             or isinstance(amount, bool)
             or not math.isfinite(amount)
         ):
-            raise ValueError("amount must be a finite number")
+            raise ValueError('amount must be a finite number')
 
         identity = self._identity(key)
         statement = sqlite_insert(self._model).values(
@@ -301,18 +301,18 @@ class _KeyValueStorage:
             value=amount,
         )
         current_value = self._model.value
-        numeric_value = func.json_extract(current_value, "$") + amount
+        numeric_value = func.json_extract(current_value, '$') + amount
         statement = statement.on_conflict_do_update(
             index_elements=self._conflict_columns,
             set_={
-                "value": case(
+                'value': case(
                     (
-                        func.json_type(current_value, "$").in_(("integer", "real")),
+                        func.json_type(current_value, '$').in_(('integer', 'real')),
                         func.json(numeric_value),
                     ),
                     else_=current_value,
                 ),
-                "updated_at": func.current_timestamp(),
+                'updated_at': func.current_timestamp(),
             },
         ).returning(self._model.value)
 
@@ -321,7 +321,7 @@ class _KeyValueStorage:
             result = await connection.execute(statement)
             value = result.scalar_one()
             if not isinstance(value, (int, float)) or isinstance(value, bool):
-                raise TypeError(f"value stored at {key!r} is not a number")
+                raise TypeError(f'value stored at {key!r} is not a number')
         return value
 
     async def mutate(
@@ -331,13 +331,13 @@ class _KeyValueStorage:
         *,
         default: Any = None,
     ) -> Any:
-        """Atomically read, transform and write one value.
+        '''Atomically read, transform and write one value.
 
         ``transform`` must be a fast synchronous function. The transaction uses
         ``BEGIN IMMEDIATE``, so it is also safe against another local process.
-        """
+        '''
         if not callable(transform):
-            raise TypeError("transform must be callable")
+            raise TypeError('transform must be callable')
         identity = self._identity(key)
 
         async with self._storage._write_connection() as connection:
@@ -352,10 +352,10 @@ class _KeyValueStorage:
             if inspect.isawaitable(new_value):
                 if inspect.iscoroutine(new_value):
                     new_value.close()
-                raise TypeError("transform must be synchronous")
+                raise TypeError('transform must be synchronous')
             _validate_json(new_value)
             await connection.execute(
-                self._upsert_statement({**identity, "value": new_value}),
+                self._upsert_statement({**identity, 'value': new_value}),
             )
             return new_value
 
@@ -364,8 +364,8 @@ class _KeyValueStorage:
         return statement.on_conflict_do_update(
             index_elements=self._conflict_columns,
             set_={
-                "value": statement.excluded.value,
-                "updated_at": func.current_timestamp(),
+                'value': statement.excluded.value,
+                'updated_at': func.current_timestamp(),
             },
         )
 
@@ -375,18 +375,18 @@ class _KeyValueStorage:
 
     @property
     def _scope_identity(self) -> dict[str, Any]:
-        return {"namespace": self.namespace}
+        return {'namespace': self.namespace}
 
 
 class BotStorage(_KeyValueStorage):
-    """Namespace-scoped storage shared by the entire bot."""
+    '''Namespace-scoped storage shared by the entire bot.'''
 
     _model = BotValue
 
     def __init__(
         self,
         storage: PersistentStorage,
-        namespace: str = "default",
+        namespace: str = 'default',
     ) -> None:
         super().__init__(storage, namespace)
 
@@ -399,7 +399,7 @@ class BotStorage(_KeyValueStorage):
 
 
 class UserStorage(_KeyValueStorage):
-    """Namespace-scoped storage bound to one Telegram user ID."""
+    '''Namespace-scoped storage bound to one Telegram user ID.'''
 
     _model = UserValue
 
@@ -407,7 +407,7 @@ class UserStorage(_KeyValueStorage):
         self,
         storage: PersistentStorage,
         user_id: int,
-        namespace: str = "default",
+        namespace: str = 'default',
     ) -> None:
         self.user_id = user_id
         super().__init__(storage, namespace)
@@ -416,7 +416,7 @@ class UserStorage(_KeyValueStorage):
         return UserStorage(self._storage, self.user_id, namespace)
 
     def _identity(self, key: str) -> dict[str, Any]:
-        return {"user_id": self.user_id, **super()._identity(key)}
+        return {'user_id': self.user_id, **super()._identity(key)}
 
     async def _prepare_value_write(self, connection: AsyncConnection) -> None:
         statement = sqlite_insert(TelegramUser).values(id=self.user_id)
@@ -428,4 +428,4 @@ class UserStorage(_KeyValueStorage):
 
     @property
     def _scope_identity(self) -> dict[str, Any]:
-        return {"user_id": self.user_id, "namespace": self.namespace}
+        return {'user_id': self.user_id, 'namespace': self.namespace}

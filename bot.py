@@ -23,7 +23,7 @@ async def on_shutdown(persistence: PersistentStorage) -> None:
 def main() -> None:
     bot = Bot(
         config.BOT_TOKEN,
-        default=DefaultBotProperties(parse_mode="HTML"),
+        default=DefaultBotProperties(parse_mode='HTML'),
     )
 
     persistence = PersistentStorage(config.DATABASE_URL)
@@ -36,5 +36,5 @@ def main() -> None:
     asyncio.run(dp.start_polling(bot))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

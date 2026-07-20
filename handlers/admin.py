@@ -10,7 +10,7 @@ async def admit_chat(msg: types.Message, bot_storage: BotStorage):
         return
 
     await bot_storage.mutate(
-        "admitted_chats",
+        'admitted_chats',
         lambda admitted_chats: admitted_chats if msg.chat in admitted_chats else [*admitted_chats, msg.chat],
         default=[],
     )
@@ -23,7 +23,7 @@ async def deny_chat(msg: types.Message, bot_storage: BotStorage):
         return
 
     await bot_storage.mutate(
-        "admitted_chats",
+        'admitted_chats',
         lambda admitted_chats: [c for c in admitted_chats if c != msg.chat],
         default=[],
     )
