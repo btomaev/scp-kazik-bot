@@ -3,6 +3,11 @@ admin: 1139602557
 start_balance: 1000
 loan_value: 500
 
+games:
+  blackjack:
+    min_players: 1 
+    max_players: 6 # Without dealer
+
 localization:
   admin:
     chat_admitted: Чат одобрен для использования
@@ -37,11 +42,24 @@ localization:
       received: Сцедил тебе {loan_value} манесов
 
   blackjack:
-    start:
-      make_room: Создать комнату для игры в блэкджек?
-      make_room_btn: Создать
-      close_room_btn: Закрыть комнату
-      join_room_btn: Присоединиться ({joined_players}/{max_players})
+    room:
+      make: Создать комнату для игры в блэкджек?
+      waiting: |
+        Собираем стол в блэкджек! #{room}
+        Играют: {players}
+
+  rooms:
+    make_btn: Создать
+    start_btn: Начать
+    exit_btn: Покинуть
+    join_btn: Присоединиться ({joined_players}/{max_players})
+    successful_joined: "Вы присоединились к комнате #{room}"
+    successful_exited: "Вы покинули комнату #{room}"
+    closed_due_to_no_players: "Комната #{room} удалена, так как в ней не осталось игроков"
+    err_not_joined: Вы не состоите в этой комнате
+    err_already_joined: Вы уже присоединились к этой комнате
+    err_not_exists: Ошибка! Комнаты не существует
+    err_too_many_players: В этой комнате слишком много игроков, присоединиться не получится
 
   start:
     welcome: |-
@@ -61,4 +79,6 @@ localization:
 
   system:
     critical_error: Произошла критическая ошибка!
-    too_many_stickers: Вы лудили слишком часто, казик накрыли менты, ставка не возвращается.
+    err_too_many_stickers: Вы лудили слишком часто, казик накрыли менты, ставка не возвращается.
+    err_message_inaccessible: Ошибка, сообщение недоступно
+    err_not_your_button: Эта кнопка предназначена не вам
