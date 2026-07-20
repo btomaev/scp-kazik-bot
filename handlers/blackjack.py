@@ -252,3 +252,5 @@ async def start_room(callback: types.CallbackQuery, callback_data: BlackjackCall
     await callback.message.reply_to_message.reply_rich(
         rich_message=rich_message
     )
+
+    await rooms.delete(str(room_id))
