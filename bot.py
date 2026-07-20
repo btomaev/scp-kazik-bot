@@ -2,6 +2,7 @@ import asyncio
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
+from aiogram.types import BotCommand, BotCommandScopeAllGroupChats
 
 import handlers
 import config
@@ -10,6 +11,19 @@ from storage import PersistentStorage, StorageMiddleware
 
 def setup_handlers(dp: Dispatcher) -> None:
     dp.include_router(handlers.prepare_router())
+
+
+async def setup_commands(bot: Bot) -> None:
+    await bot.set_my_commands(
+        commands=[
+            BotCommand(
+                command='blackjack',
+                description='Запустить игру в блэкджек',
+                is_ephemeral=True,
+            )
+        ],
+        scope=BotCommandScopeAllGroupChats(),
+    )
 
 
 async def on_startup(persistence: PersistentStorage) -> None:
@@ -32,6 +46,7 @@ def main() -> None:
     setup_handlers(dp)
 
     dp.startup.register(on_startup)
+    dp.startup.register(setup_commands)
     dp.shutdown.register(on_shutdown)
     asyncio.run(dp.start_polling(bot))
 

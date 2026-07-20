@@ -33,8 +33,7 @@ async def dep(msg: types.Message, user_storage: UserStorage):
 
     await user_storage.set('deposit', value)
     await msg.reply(
-        config.get('localization.dep.accepted').format(value=value),
-        allow_sending_without_reply=True
+        config.get('localization.dep.accepted').format(value=value)
     )
 
 

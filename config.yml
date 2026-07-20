@@ -5,7 +5,7 @@ loan_value: 500
 
 games:
   blackjack:
-    min_players: 1 
+    min_players: 1
     max_players: 6 # Without dealer
 
 localization:
@@ -42,11 +42,25 @@ localization:
       received: Сцедил тебе {loan_value} манесов
 
   blackjack:
+    dealer_name: Дилер-хуилер
     room:
       make: Создать комнату для игры в блэкджек?
       waiting: |
         Собираем стол в блэкджек! #{room}
         Играют: {players}
+    playtime:
+      table_layout:
+        body: |
+          <h2>Блэкджек. Cтол #{room}</h2>
+          <table bordered striped>
+              <caption>Cтол #{room}</caption>
+              {rows}
+          </table>
+        row: |
+          <tr>
+            <th>{player}</th>
+            <th>{cards}</th>
+          </tr>
 
   rooms:
     make_btn: Создать
@@ -60,6 +74,8 @@ localization:
     err_already_joined: Вы уже присоединились к этой комнате
     err_not_exists: Ошибка! Комнаты не существует
     err_too_many_players: В этой комнате слишком много игроков, присоединиться не получится
+    err_cant_start: Вы не можете запустить эту комнату
+    err_not_enough_plaers: Недостаточно игроков для начала игры
 
   start:
     welcome: |-

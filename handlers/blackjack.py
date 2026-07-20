@@ -5,9 +5,12 @@ from aiogram import types
 import config
 from keyboards.blackjack import BlackjackCallback, waiting_room_keyboard, make_room_keyboard
 from storage import BotStorage
+from util.cards import get_deck
 
 
 async def blackjack(msg: types.Message, storage: BotStorage):
+    if not msg.from_user:
+        return
     await msg.reply(
         config.get('localization.blackjack.room.make'),
         reply_markup=make_room_keyboard(),
@@ -35,7 +38,8 @@ async def create_room(callback: types.CallbackQuery, bot_storage: BotStorage):
         player.id: {
             'id': player.id,
             'name': player.full_name,
-            'username': player.username
+            'username': player.username,
+            'hand': [],
         }
     }
 
@@ -88,7 +92,8 @@ async def join_room(callback: types.CallbackQuery, callback_data: BlackjackCallb
             player.id: {
                 'id': player.id,
                 'name': player.full_name,
-                'username': player.username
+                'username': player.username,
+                'hand': [],
             }
         })
     players_count = len(room['players'])
@@ -173,3 +178,77 @@ async def exit_room(callback: types.CallbackQuery, callback_data: BlackjackCallb
             ),
             reply_markup=None
         )
+
+    
+async def start_room(callback: types.CallbackQuery, callback_data: BlackjackCallback, bot_storage: BotStorage):
+    if not callback.message or \
+       isinstance(callback.message, types.InaccessibleMessage) or \
+       not callback.message.reply_to_message:
+        await callback.answer(config.get('localization.system.err_message_inaccessible'))
+        return
+    
+    rooms = bot_storage.scoped('blackjack_rooms')
+    room_id = callback_data.room_id
+    room = await rooms.get(room_id)
+    player = callback.from_user
+
+    if not room:
+        await callback.answer(config.get('localization.rooms.err_not_exists'))
+        return
+    
+    if not room['players'] or list(room['players'])[0] != str(player.id):
+        await callback.answer(config.get('localization.rooms.err_cant_start'))
+        return
+    
+    players_count = len(room['players'])
+
+    if players_count < config.get('games.blackjack.min_players'):
+        await callback.answer(config.get('localization.rooms.err_not_enough_players'))
+        return
+    
+    room['status'] = 'active'
+    room['deck'] = get_deck(size=52, shuffle=True)
+
+    await rooms.set(room_id, room)
+    
+    room['dealer'] = {
+        'name': config.get('localization.blackjack.dealer_name'),
+        'hand': []
+    }
+
+    players = [*room['players'].values(), room['dealer']]
+
+    for player in players * 2:
+        player['hand'].append(room['deck'].pop())
+
+    rich_message = types.InputRichMessage(
+        html=config.get(
+            'localization.blackjack.playtime.table_layout.body'
+        ).format(
+            room=room_id,
+            rows=
+            ''.join([
+                config.get(
+                    'localization.blackjack.playtime.table_layout.row'
+                ).format(
+                    player=room['dealer']['name'],
+                    cards=', '.join([room['dealer']['hand'][0], '##'])
+                )
+            ])
+            +
+            ''.join([
+                config.get(
+                    'localization.blackjack.playtime.table_layout.row'
+                ).format(
+                    player=p['name'],
+                    cards=', '.join(p['hand'])
+                )
+                for p in room['players'].values()
+            ])
+        )
+    )
+
+    await callback.message.delete()
+    await callback.message.reply_to_message.reply_rich(
+        rich_message=rich_message
+    )
