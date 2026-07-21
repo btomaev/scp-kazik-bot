@@ -17,9 +17,33 @@ async def setup_commands(bot: Bot) -> None:
     await bot.set_my_commands(
         commands=[
             BotCommand(
+                command='start',
+                description='Начать работу с ботом',
+            ),
+            BotCommand(
+                command='balance',
+                description='Показать баланс, ставку и долг',
+            ),
+            BotCommand(
+                command='stats',
+                description='Показать игровую статистику',
+            ),
+            BotCommand(
+                command='dep',
+                description='Установить ставку по умолчанию',
+            ),
+            BotCommand(
+                command='loan',
+                description='Взять заём при нулевом балансе',
+            ),
+            BotCommand(
+                command='slot',
+                description='Сыграть в слоты',
+            ),
+            BotCommand(
                 command='blackjack',
                 description='Запустить игру в блэкджек',
-            )
+            ),
         ],
         scope=BotCommandScopeAllGroupChats(),
     )
