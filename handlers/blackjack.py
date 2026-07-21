@@ -1,3 +1,4 @@
+import asyncio
 import html
 import secrets
 from collections.abc import Sequence
@@ -13,7 +14,7 @@ from keyboards.blackjack import (
     table_room_keyboard,
     waiting_room_keyboard,
 )
-from storage import BotStorage
+from storage import BotStorage, PersistentStorage
 from util.cards import get_deck
 
 
@@ -215,6 +216,7 @@ async def start_room(
     callback: types.CallbackQuery,
     callback_data: BlackjackCallback,
     bot_storage: BotStorage,
+    storage: PersistentStorage,
 ):
     message = _accessible_message(callback)
     if not message:
@@ -238,6 +240,9 @@ async def start_room(
     except BlackjackActionError as error:
         await _answer_error(callback, error.localization_key)
         return
+
+    if room['status'] == 'finished':
+        await _record_blackjack_statistics(storage, room)
 
     await message.edit_text(
         rich_message=make_table_layout(room),
@@ -319,22 +324,37 @@ async def action_hit(
     callback: types.CallbackQuery,
     callback_data: BlackjackCallback,
     bot_storage: BotStorage,
+    storage: PersistentStorage,
 ):
-    await _perform_player_action(callback, callback_data, bot_storage, action='hit')
+    await _perform_player_action(
+        callback,
+        callback_data,
+        bot_storage,
+        storage,
+        action='hit',
+    )
 
 
 async def action_stand(
     callback: types.CallbackQuery,
     callback_data: BlackjackCallback,
     bot_storage: BotStorage,
+    storage: PersistentStorage,
 ):
-    await _perform_player_action(callback, callback_data, bot_storage, action='stand')
+    await _perform_player_action(
+        callback,
+        callback_data,
+        bot_storage,
+        storage,
+        action='stand',
+    )
 
 
 async def _perform_player_action(
     callback: types.CallbackQuery,
     callback_data: BlackjackCallback,
     bot_storage: BotStorage,
+    storage: PersistentStorage,
     *,
     action: str,
 ):
@@ -359,6 +379,9 @@ async def _perform_player_action(
     except BlackjackActionError as error:
         await _answer_error(callback, error.localization_key)
         return
+
+    if room['status'] == 'finished':
+        await _record_blackjack_statistics(storage, room)
 
     await callback.answer()
 
@@ -552,6 +575,75 @@ def calc_game_results(room: Room) -> None:
             result = 'push'
 
         player['result'] = result
+
+
+def _add_blackjack_result(
+    current: Any,
+    *,
+    room_id: str,
+    result: str,
+) -> dict[str, Any]:
+    result_fields = {
+        'win': 'wins',
+        'lose': 'losses',
+        'push': 'pushes',
+        'blackjack': 'wins',
+    }
+    if result not in result_fields:
+        raise ValueError(f'unsupported blackjack result: {result}')
+
+    stats = dict(current) if isinstance(current, dict) else {}
+    recorded_game_ids = stats.get('recorded_game_ids')
+    if not isinstance(recorded_game_ids, list):
+        recorded_game_ids = []
+    recorded_game_ids = [
+        str(game_id)
+        for game_id in recorded_game_ids
+        if isinstance(game_id, (str, int))
+    ]
+
+    room_id = str(room_id)
+    if room_id in recorded_game_ids:
+        return stats
+
+    for field in ('played', 'wins', 'losses', 'pushes', 'blackjacks'):
+        value = stats.get(field, 0)
+        stats[field] = (
+            max(0, int(value))
+            if isinstance(value, (int, float)) and not isinstance(value, bool)
+            else 0
+        )
+
+    stats['played'] += 1
+    stats[result_fields[result]] += 1
+    if result == 'blackjack':
+        stats['blackjacks'] += 1
+
+    stats['recorded_game_ids'] = [*recorded_game_ids, room_id][-100:]
+    return stats
+
+
+async def _record_blackjack_statistics(
+    storage: PersistentStorage,
+    room: Room,
+) -> None:
+    room_id = str(room['id'])
+
+    async def record(player: Player) -> None:
+        result = player.get('result')
+        if not isinstance(result, str):
+            raise ValueError('blackjack player result is missing')
+        await storage.for_user(player['id']).mutate(
+            'blackjack_stats',
+            lambda current: _add_blackjack_result(
+                current,
+                room_id=room_id,
+                result=result,
+            ),
+            default={},
+        )
+
+    await asyncio.gather(*(record(player) for player in room['players'].values()))
 
 
 def make_table_layout(room: Room) -> types.InputRichMessage:

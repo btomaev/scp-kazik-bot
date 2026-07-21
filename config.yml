@@ -121,10 +121,28 @@ localization:
       Текущий депозит: {deposit}
       Ваш долг: {debt}
     stats: |-
-      Пролудоманенно: {total_lost}
-      Всего выиграно: {total_earned}
-      Всего побед: {total_wins}
-      Сыграно в слотмашину: {total_slot_play}/{total_slot_wins}
+      <b>📊 Общая статистика</b>
+      Игр: {total_play}
+      Побед: {total_wins}
+      Поражений: {total_losses}
+      Ничьих: {total_pushes}
+      Винрейт: {total_win_rate}%
+
+      <b>🎰 Слоты</b>
+      Игр: {total_slot_play}
+      Побед: {total_slot_wins}
+      Поражений: {total_slot_losses}
+      Винрейт: {total_slot_win_rate}%
+      Выиграно: {total_slot_earned}
+      Проиграно: {total_slot_lost}
+
+      <b>🃏 Блэкджек</b>
+      Партий: {total_blackjack_play}
+      Побед: {total_blackjack_wins}
+      Поражений: {total_blackjack_losses}
+      Ничьих: {total_blackjack_pushes}
+      Блэкджеков с раздачи: {total_blackjacks}
+      Винрейт: {total_blackjack_win_rate}%
 
   system:
     critical_error: Произошла критическая ошибка!
