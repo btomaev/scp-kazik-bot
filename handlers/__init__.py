@@ -34,5 +34,8 @@ def prepare_router() -> Router:
     router.callback_query.register(blackjack.join_room, BlackjackCallback.filter(F.action == 'join'))
     router.callback_query.register(blackjack.exit_room, BlackjackCallback.filter(F.action == 'exit'))
     router.callback_query.register(blackjack.start_room, BlackjackCallback.filter(F.action == 'start'))
+    router.callback_query.register(blackjack.show_controls, BlackjackCallback.filter(F.action == 'controls'))
+    router.callback_query.register(blackjack.action_hit, BlackjackCallback.filter(F.action == 'hit'))
+    router.callback_query.register(blackjack.action_stand, BlackjackCallback.filter(F.action == 'stand'))
 
     return router

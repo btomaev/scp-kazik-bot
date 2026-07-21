@@ -48,19 +48,45 @@ localization:
       waiting: |
         Собираем стол в блэкджек! #{room}
         Играют: {players}
+      active:
+        control:
+          message: |
+            Ваши действия?
+            Сумма карт: {score}.
+          waiting_other_players: Ждем ход {player}
+          finished: "Игра завершена: {result}"
+          unavailable: Не удалось отправить персональные контролы. Попробуйте еще раз.
     playtime:
       table_layout:
         body: |
-          <h2>Блэкджек. Cтол #{room}</h2>
+          <h2>Блэкджек</h2>
+          <p>{status}</p>
           <table bordered striped>
-              <caption>Cтол #{room}</caption>
-              {rows}
+            <caption>Cтол #{room}</caption>
+            {rows}
           </table>
         row: |
           <tr>
             <th>{player}</th>
             <th>{cards}</th>
-          </tr>
+            <th>{result}</th>
+          </tr> 
+      turn: "Ход игрока: {player}"
+      finished: Игра завершена
+      controls_btn: Мои действия
+      hit_btn: Хит
+      stand_btn: Стэнд
+      state:
+        waiting: Ждет
+        playing: Играет
+        stood: Стоп
+        busted: Перебор
+        blackjack: Блэкджек
+      result:
+        win: Победа
+        lose: Поражение
+        push: Ничья
+        blackjack: Блэкджек
 
   rooms:
     make_btn: Создать
@@ -70,12 +96,19 @@ localization:
     successful_joined: "Вы присоединились к комнате #{room}"
     successful_exited: "Вы покинули комнату #{room}"
     closed_due_to_no_players: "Комната #{room} удалена, так как в ней не осталось игроков"
+    game_starting: Игра начинается...
     err_not_joined: Вы не состоите в этой комнате
     err_already_joined: Вы уже присоединились к этой комнате
     err_not_exists: Ошибка! Комнаты не существует
     err_too_many_players: В этой комнате слишком много игроков, присоединиться не получится
     err_cant_start: Вы не можете запустить эту комнату
-    err_not_enough_plaers: Недостаточно игроков для начала игры
+    err_not_enough_players: Недостаточно игроков для начала игры
+    err_cant_do_this_action: Вы не можете сделать это действие
+    err_not_your_turn: Сейчас не ваш ход
+    err_room_not_waiting: Комната уже запущена или закрыта
+    err_game_not_active: Игра уже завершена или еще не началась
+    err_deck_empty: В колоде закончились карты
+    err_room_id_collision: Не удалось создать уникальную комнату
 
   start:
     welcome: |-

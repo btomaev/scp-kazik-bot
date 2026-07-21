@@ -19,7 +19,6 @@ async def setup_commands(bot: Bot) -> None:
             BotCommand(
                 command='blackjack',
                 description='Запустить игру в блэкджек',
-                is_ephemeral=True,
             )
         ],
         scope=BotCommandScopeAllGroupChats(),
