@@ -1,6 +1,7 @@
 import asyncio
 
 from aiogram import types
+from aiogram.enums import ChatType
 from aiogram.exceptions import TelegramRetryAfter
 
 import config
@@ -66,4 +67,13 @@ async def slot(msg: types.Message, user_storage: UserStorage):
         )
     else:
         await user_storage.increment('total_slot_lost', deposit)
-        await msg.reply(config.get('localization.dep.slot.loss'))
+        await _send_loss_message(msg)
+
+
+async def _send_loss_message(msg: types.Message) -> None:
+    text = config.get('localization.dep.slot.loss')
+    if msg.from_user and msg.chat.type in (ChatType.GROUP, ChatType.SUPERGROUP):
+        await msg.answer(text, receiver_user_id=msg.from_user.id)
+        return
+
+    await msg.reply(text)
