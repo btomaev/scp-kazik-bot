@@ -59,7 +59,8 @@ localization:
     playtime:
       table_layout:
         body: |
-          <b>Блэкджек: </b> {status}
+          <b>Блэкджек</b>
+          <p>{status}</p>
           <table bordered striped>
             <caption>Cтол #{room}</caption>
             {rows}
